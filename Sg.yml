@@ -1,0 +1,48 @@
+version: 1
+description: Rules for Terraform configuration files-Security Groups
+type: Terraform
+files:
+  - "*.tf"
+rules:
+
+  - id: SG_INGRESS
+    resource: aws_security_group
+    message: Security group should not allow ingress from 0.0.0.0/0 or ::/0
+    severity: WARNING
+    assertions:
+      - not:
+        - or:
+          - key: "ingress[].cidr_blocks[]"
+            op: contains
+            value: "0.0.0.0/0"
+          - key: "ingress[].cidr_blocks[]"
+            op: contains
+            value: "::/0"
+    tags:
+      - sg
+
+  - id: SG_EGRESS
+    resource: aws_security_group
+    message: Security group should not allow egress to 0.0.0.0/0 or ::/0
+    severity: WARNING
+    assertions:
+      - not:
+        - or:
+          - key: "egress[].cidr_blocks[]"
+            op: contains
+            value: "0.0.0.0/0"
+          - key: "egress[].cidr_blocks[]"
+            op: contains
+            value: "::/0"
+    tags:
+      - sg
+
+
+  - id: SG_SSH_INGRESS
+    resource: aws_security_group
+    message: Security group should not allow ingress from 0.0.0.0/0 or ::/0 for port 22
+    severity: FAILURE
+    assertions:
+      - not:
+        - or:
+          - key: "ingress[?(from_port==`22`)].cidr_blocks[]"

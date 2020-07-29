@@ -1,0 +1,48 @@
+version: 1
+description: Rules for Terraform configuration files
+type: Terraform
+files:
+  - "*.tf"
+rules:
+
+  - id: Instance type rule
+    message: Instance type should be t2.micro or t2.medium
+    resource: aws_instance
+    assertions:
+      - key: instance_type
+        op: in
+        value: t2.micro,t2.medium
+    severity: WARNING
+
+  - id: AMI Rule
+    message: Not an approved AMI
+    resource: aws_instance
+    assertions:
+      - key: ami
+        op: in
+        value: ami-f2d3638a
+    severity: FAILURE
+
+  - id: Tags rule
+    resource: aws_instance
+    message: Server name should start with either PRD or DEV and end with sv or srv
+    severity: WARNING
+    assertions:
+      - or:
+        - key: tag.Name
+          op: starts-with
+          value: PRD
+        - key: tag.Name
+          op: starts-with
+          value: DEV
+
+  - id: Tags rule2
+    resource: aws_instance
+    message: Should have both name and environment tags
+    severity: WARNING
+    assertions:
+      - and:
+        - key: "tags[].Name | [0]"
+          op: present
+        - key: "tags[].ENV | [0]"
+          op: present

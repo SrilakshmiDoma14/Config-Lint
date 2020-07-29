@@ -1,0 +1,14 @@
+version: 1
+description: Custom lint rule to check tags in terraform
+type: Terraform
+files:
+  - "*.tf"
+rules:
+  - id: INSTANCE_TAG
+    severity: FAILURE
+    message: Resource name should start with PRD
+    resource: aws_instance
+    assertions:
+      - key: tags.Name
+        op: in
+        value: PRD,PPROD,DEV
